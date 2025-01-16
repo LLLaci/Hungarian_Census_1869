@@ -1,8 +1,6 @@
-# :earth_americas: GDP dashboard template
+# :Hungarian Census 1869
 
-A simple Streamlit app showing the GDP of different countries in the world.
-
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://gdp-dashboard-template.streamlit.app/)
+A simple Streamlit app showing the results of the 1869 Hungarian Census
 
 ### How to run it on your own machine
 
