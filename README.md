@@ -1,4 +1,4 @@
-# :Hungarian Census 1869
+# Hungarian Census 1869
 
 A simple Streamlit app showing the results of the 1869 Hungarian Census
 
