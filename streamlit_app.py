@@ -1,151 +1,93 @@
 import streamlit as st
 import pandas as pd
-import math
-from pathlib import Path
+import json
+import plotly.express as px
 
-# Set the title and favicon that appear in the Browser's tab bar.
-st.set_page_config(
-    page_title='GDP dashboard',
-    page_icon=':earth_americas:', # This is an emoji shortcode. Could be a URL too.
-)
+ss = st.session_state
 
-# -----------------------------------------------------------------------------
-# Declare some useful functions.
+st.set_page_config(layout="wide")
+st.title("Hungarian Census of 1869")
 
-@st.cache_data
-def get_gdp_data():
-    """Grab GDP data from a CSV file.
+st.write(ss)
 
-    This uses caching to avoid having to read the file every time. If we were
-    reading from an HTTP endpoint instead of a file, it's a good idea to set
-    a maximum age to the cache with the TTL argument: @st.cache_data(ttl='1d')
-    """
+init = False
+if "start" not in ss:
+    ss["start"] = True
+    ss["tab0button"] = "region"
+    init = True
 
-    # Instead of a CSV on disk, you could read from an HTTP endpoint here too.
-    DATA_FILENAME = Path(__file__).parent/'data/gdp_data.csv'
-    raw_gdp_df = pd.read_csv(DATA_FILENAME)
+st.write(ss)
 
-    MIN_YEAR = 1960
-    MAX_YEAR = 2022
+if init == True:
+    ss["start"] = False
 
-    # The data above has columns like:
-    # - Country Name
-    # - Country Code
-    # - [Stuff I don't care about]
-    # - GDP for 1960
-    # - GDP for 1961
-    # - GDP for 1962
-    # - ...
-    # - GDP for 2022
-    #
-    # ...but I want this instead:
-    # - Country Name
-    # - Country Code
-    # - Year
-    # - GDP
-    #
-    # So let's pivot all those year-columns into two: Year and GDP
-    gdp_df = raw_gdp_df.melt(
-        ['Country Code'],
-        [str(x) for x in range(MIN_YEAR, MAX_YEAR + 1)],
-        'Year',
-        'GDP',
-    )
+    # Get borders
 
-    # Convert years from string to integers
-    gdp_df['Year'] = pd.to_numeric(gdp_df['Year'])
+    f = open("county_borders_1867.geojson","r")
+    json_text = f.read()
+    f.close()
+    geojson = json.loads(json_text)
 
-    return gdp_df
+    # Get region and local goverment type
 
-gdp_df = get_gdp_data()
+    locations = pd.read_excel("regions.xlsx")
 
-# -----------------------------------------------------------------------------
-# Draw the actual page
+def draw_map(sort_by):
+    if (sort_by == "region"):
+        region_map = {"Magyarország" : "#FF0000",
+                    "Erdély" : "#0000FF",
+                    "Horvátország" : "#7F00FF",
+                    "Szlavonország" : "#7F007F",
+                    "Magyar határőrvidék" : "#FF7F7F",
+                    "Horvát-Szlavon határőrvidék" : "#AF7FFF",
+                    "Fiume város" : "#FFAF7F"}
+    elif (sort_by == "government"):
+        region_map = {"vármegye" : "#FF0000",
+                    "Felső-Fehér vármegye": "#AF0000", 
+                    "vidék": "#DF2020",
+                    "kerület": "#FFFF00",
+                    "székely szék": "#00FFFF",
+                    "szász szék": "#00FF00",
+                    "határőrvidék": "#AF7FFF",
+                    "Fiume város" : "#FFAF7F"}
 
-# Set the title that appears at the top of the page.
-'''
-# :earth_americas: GDP dashboard
+    locations["color"] = locations[sort_by].map(region_map) 
 
-Browse GDP data from the [World Bank Open Data](https://data.worldbank.org/) website. As you'll
-notice, the data only goes to 2022 right now, and datapoints for certain years are often missing.
-But it's otherwise a great (and did I mention _free_?) source of data.
-'''
+    color_map = locations["color"].drop_duplicates().tolist()
 
-# Add some spacing
-''
-''
+    fig = px.choropleth(
+            geojson=geojson,
+            color=locations[sort_by],
+            color_discrete_sequence = color_map,
+            locations=locations["county"])
+    fig.update_geos(fitbounds="locations", visible=False)
+    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+    fig.show()    
 
-min_value = gdp_df['Year'].min()
-max_value = gdp_df['Year'].max()
-
-from_year, to_year = st.slider(
-    'Which years are you interested in?',
-    min_value=min_value,
-    max_value=max_value,
-    value=[min_value, max_value])
-
-countries = gdp_df['Country Code'].unique()
-
-if not len(countries):
-    st.warning("Select at least one country")
-
-selected_countries = st.multiselect(
-    'Which countries would you like to view?',
-    countries,
-    ['DEU', 'FRA', 'GBR', 'BRA', 'MEX', 'JPN'])
-
-''
-''
-''
-
-# Filter the data
-filtered_gdp_df = gdp_df[
-    (gdp_df['Country Code'].isin(selected_countries))
-    & (gdp_df['Year'] <= to_year)
-    & (from_year <= gdp_df['Year'])
-]
-
-st.header('GDP over time', divider='gray')
-
-''
-
-st.line_chart(
-    filtered_gdp_df,
-    x='Year',
-    y='GDP',
-    color='Country Code',
-)
-
-''
-''
-
-
-first_year = gdp_df[gdp_df['Year'] == from_year]
-last_year = gdp_df[gdp_df['Year'] == to_year]
-
-st.header(f'GDP in {to_year}', divider='gray')
-
-''
-
-cols = st.columns(4)
-
-for i, country in enumerate(selected_countries):
-    col = cols[i % len(cols)]
-
-    with col:
-        first_gdp = first_year[first_year['Country Code'] == country]['GDP'].iat[0] / 1000000000
-        last_gdp = last_year[last_year['Country Code'] == country]['GDP'].iat[0] / 1000000000
-
-        if math.isnan(first_gdp):
-            growth = 'n/a'
-            delta_color = 'off'
-        else:
-            growth = f'{last_gdp / first_gdp:,.2f}x'
-            delta_color = 'normal'
-
-        st.metric(
-            label=f'{country} GDP',
-            value=f'{last_gdp:,.0f}B',
-            delta=growth,
-            delta_color=delta_color
-        )
+dashboard = st.container(border = True)    
+with dashboard:
+    tab_list = ["Regions and Government","Age Census"]
+    longest_text = 0
+    for text in tab_list:
+        if (len(text) > longest_text):
+            longest_text = len(text)
+    longest_text = longest_text + 8
+    for i,text in enumerate(tab_list):
+        text = "**" + "_" * ((longest_text - len(text)) // 2) + " " + text + " " + (longest_text - len(text) - ((longest_text - len(text)) // 2)) * "_" + "**"
+        tab_list[i] = text
+    tabs = st.tabs(tab_list)
+    with tabs[0]: # SUMMARY
+        selected_tab = 0
+        kpi_col, map_col ,col3 = st.columns([3,10,6],gap = "small")
+        with kpi_col:
+            pass
+        with map_col:
+            map_container = st.container(border = True) 
+            with map_container:            
+                map_list = ["Region","Government"]
+                button_column = st.columns(([1] * len(map_list)))
+                for i in range(len(map_list)):
+                    with button_column[i]:
+                        if st.button(map_list[i],use_container_width=True,type = ("primary" if (ss["tab" + str(selected_tab) + "button"] == map_list[i]) else "secondary")):
+                            ss.sales_map = map_list[i]
+                            st.rerun()            
