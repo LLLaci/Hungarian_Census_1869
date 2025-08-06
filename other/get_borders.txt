@@ -1,0 +1,89 @@
+#1
+import pandas as pd
+import json
+
+geojson = {'features': [], 'type': 'FeatureCollection'}
+colors = []
+location_list = []
+
+df = pd.read_excel("varmegyek_1867.xlsx")
+for i in range(0,len(df),2):
+    county = df.iloc[i,0]
+    borders = []
+    for j in range(1,len(df.columns)):
+        if pd.isna(df.iloc[i,j]) == False:
+            borders.insert(0,[df.iloc[i,j] / 100,-df.iloc[i+1,j] / 100])
+        else:
+            break
+    j = 1
+    borders.insert(0,[df.iloc[i,j] / 100,-df.iloc[i+1,j] / 100])            
+    already_in = False
+    for element in geojson['features']:
+        if element['id'] == county:
+            element['geometry']['coordinates'].append(borders)
+            already_in = True
+            break
+    if already_in == False:
+        temp_dict = {
+            'geometry': {
+                'coordinates': [borders],
+                'type': 'Polygon'},
+            'type': 'Feature',
+            'id': county}
+        geojson['features'].append(temp_dict)
+        colors.append(county)
+        location_list.append(county)        
+locations_raw = pd.DataFrame(location_list)
+locations_raw.columns = ['county']
+print("Ready")
+
+file_name = "county_borders_1867.geojson"
+json_dump = json.dumps(geojson, indent = 4)
+f = open(file_name,"w")
+f.write(json_dump)
+f.close()
+
+#2
+regions = pd.read_excel("regions.xlsx")
+locations = pd.merge(locations_raw, regions,how = 'left', on = 'county')
+
+sort_by = "region"
+if (sort_by == "region"):
+    region_map = {"Magyarország" : "#FF0000",
+                  "Erdély" : "#0000FF",
+                  "Horvátország" : "#7F00FF",
+                  "Szlavonország" : "#7F007F",
+                  "Magyar határőrvidék" : "#FF7F7F",
+                  "Horvát-Szlavon határőrvidék" : "#AF7FFF",
+                  "Fiume város" : "#FFAF7F"}
+elif (sort_by == "government"):
+    region_map = {"vármegye" : "#FF0000",
+                  "Felső-Fehér vármegye": "#AF0000", 
+                  "vidék": "#DF2020",
+                  "kerület": "#FFFF00",
+                  "székely szék": "#00FFFF",
+                  "szász szék": "#00FF00",
+                  "határőrvidék": "#AF7FFF",
+                  "Fiume város" : "#FFAF7F"}
+
+locations["color"] = locations[sort_by].map(region_map)          
+        
+#3
+
+import plotly.express as px
+
+f = open(file_name,"r")
+json_text = f.read()
+f.close()
+geojson = json.loads(json_text)
+
+color_map = locations["color"].drop_duplicates().tolist()
+
+fig = px.choropleth(
+        geojson=geojson,
+        color=locations[sort_by],
+        color_discrete_sequence = color_map,
+        locations=locations["county"])
+fig.update_geos(fitbounds="locations", visible=False)
+fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+fig.show()
