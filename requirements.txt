@@ -2,4 +2,3 @@ streamlit
 openpyxl
 pandas
 plotly
-json
