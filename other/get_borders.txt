@@ -6,7 +6,7 @@ geojson = {'features': [], 'type': 'FeatureCollection'}
 colors = []
 location_list = []
 
-df = pd.read_excel("varmegyek_1867.xlsx")
+df = pd.read_excel("varmegyek_1867.xlsx",header = None)
 for i in range(0,len(df),2):
     county = df.iloc[i,0]
     borders = []
@@ -32,7 +32,7 @@ for i in range(0,len(df),2):
             'id': county}
         geojson['features'].append(temp_dict)
         colors.append(county)
-        location_list.append(county)        
+        location_list.append(county)      
 locations_raw = pd.DataFrame(location_list)
 locations_raw.columns = ['county']
 print("Ready")
