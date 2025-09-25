@@ -1,6 +1,6 @@
 # Hungarian Census 1869
 
-A simple Streamlit app showing the results of the 1869 Hungarian Census
+A Streamlit app showing the results of the 1869 Hungarian Census
 
 data source: [Az 1870. év elején végrehajtott népszámlálás eredményei a hasznos házi állatok kimutatásával együtt (1871)](https://library.hungaricana.hu/en/view/NEDA_1870/?pg=0&layout=s)
 
