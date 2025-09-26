@@ -112,7 +112,7 @@ if init == True:
     # Language options
 
     ss.languages = ["HU","EN"]
-    ss.selected_language = ss.languages[0]
+    ss.selected_language = ss.languages[1]
 
     # Get borders
 
