@@ -8,13 +8,58 @@ ss = st.session_state
 
 st.set_page_config(layout="wide")
 
+    # Colored buttons
+
+st.markdown("""
+<style>
+    .st-key-green button:hover {
+        background-color: #45a049 !important;
+        color: white !important;
+        border-color: #45a049 !important;
+    }                      
+    .st-key-green button {
+        background-color: #4CAF50;
+        color: white;
+    }
+    .st-key-lightblue button:hover {
+        background-color: #0ea5e9 !important;
+        color: white !important;
+        border-color: #0ea5e9 !important;
+    }                      
+    .st-key-lightblue button {
+        background-color: #38bdf8 !important;
+        color: white !important;
+    }   
+    .st-key-darkblue button:hover {
+        background-color: #00264d !important; 
+        color: white !important;
+        border-color: #00264d !important;
+    }                      
+    .st-key-darkblue button {
+        background-color: #003366 !important;
+        color: white !important;
+    }                         
+</style>
+""", unsafe_allow_html=True)   
+
 init = False
 if "start" not in ss:
     ss["start"] = True
     init = True
 
 if init == True:
-    ss["start"] = False
+    ss["start"] = False 
+
+    # Language options
+
+    ss.languages_buttons =[{"caption" : {"HU" : "HU", "EN": "HU"}, "value" : "HU"},
+                                        {"caption" : {"HU" : "EN","EN": "EN"}, "value" : "EN"}]
+
+    ss.languages = ["HU","EN"]
+    ss.selected_language = ss.languages[1]
+
+
+    #main menu
     
     ss.selected_tab = 0
     
@@ -108,11 +153,6 @@ if init == True:
                             "nehéz herélt" : "heavy-weight gelding",
                             "csikó (3 év alatti)" :  "juvenile horses<br>(under 3 years)"
                             }     
-
-    # Language options
-
-    ss.languages = ["HU","EN"]
-    ss.selected_language = ss.languages[1]
 
     # Get borders
 
@@ -400,7 +440,7 @@ if init == True:
                                      "melt_down relative_unit" : {"HU": " db/fő", "EN" : " per capita"},                                       
                                      "melt_down yaxis_title_text" : {"HU": "Állatállomány összetétele", "EN" : "Livestock composition"},                                                                   
                                      "melt_down sidebar_title" : {"HU" : "Háziállat<br>fajták","EN": "Livestock<br>species"},                                                                                                
-                                     "map title": {"HU" : "Leggyakoribb haszonállat régiónként", "EN" : "Most popolous religious devotions by regions"},
+                                     "map title": {"HU" : "Leggyakoribb haszonállat régiónként", "EN" : "Most common livestock by regions"},
                                      "extra data": ["ratio of livestock majority","number of livestock majority"]},
                    "ratio of livestock majority":{ "text" : {"HU" : "állatállomány létszáma<br>az emberek számhoz viszonyítva", "EN": "livestock to<br>population ratio"},
                                         "db": 'animals',
@@ -518,7 +558,7 @@ if init == True:
                                                 "db" : 'literacy',
                                                 "sort_type" : "intensive property",
                                                 "suffix" : {"HU" : " %", "EN": " %"},
-                                                "theme" : [[0, 'rgb(0,0,128)'], [0.40, 'rgb(0,0,255)'],[0.495, 'rgb(191,191,255)'],[0.5, 'rgb(255,223,255)'],[0.505,'rgb(255,191,191)'],[0.60,'rgb(255,0,0)'],[1,'rgb(128,0,0)']],
+                                                "theme" : [[0, 'rgb(0,0,128)'], [0.20, 'rgb(0,0,255)'],[0.495, 'rgb(191,191,255)'],[0.5, 'rgb(255,223,255)'],[0.505,'rgb(255,191,191)'],[0.80,'rgb(255,0,0)'],[1,'rgb(128,0,0)']],
                                                 "map title" : {'HU' : f"Nők aránya az írni-olvasni tudók között", "EN": f"Female ratio in the group of literate population"},
                                                 "extra data" : ["literate female", "literate male"]}        
     
@@ -526,7 +566,7 @@ if init == True:
                                                 "db" : 'literacy',
                                                 "sort_type" : "intensive property",
                                                 "suffix" : {"HU" : " %", "EN": " %"},
-                                                "theme" : [[0, 'rgb(0,0,128)'], [0.40, 'rgb(0,0,255)'],[0.495, 'rgb(191,191,255)'],[0.5, 'rgb(255,223,255)'],[0.505,'rgb(255,191,191)'],[0.60,'rgb(255,0,0)'],[1,'rgb(128,0,0)']],
+                                                "theme" : [[0, 'rgb(0,0,128)'], [0.20, 'rgb(0,0,255)'],[0.495, 'rgb(191,191,255)'],[0.5, 'rgb(255,223,255)'],[0.505,'rgb(255,191,191)'],[0.80,'rgb(255,0,0)'],[1,'rgb(128,0,0)']],
                                                 "map title" : {'HU' : f"Nők aránya az olvasni tudók között", "EN": f"Female ratio in the group of literate population, including partial literacy"},
                                                 "extra data" : ["partially literate female", "partially literate male"]}            
 
@@ -626,31 +666,37 @@ if init == True:
 locations = ss.locations
 geojson = ss.geojson
 
-def button_list(buttonlist = None, session_state_variable = None):
+def button_list(buttonlist = None, session_state_variable = None, active_button_color = None):
+    button_container =  st.container() 
+    custom_button = False
     if (session_state_variable is None):
         session_state_variable = "tab" + str(ss.selected_tab) + "button"
         buttonlist = ss.tab_list[ss.selected_tab]["buttons"]
     if ((buttonlist == ss.tab_list) | (buttonlist == ss.languages)):
         max_column = len(buttonlist)
+        if (buttonlist == ss.tab_list):               
+            custom_button = True           
     else:
         if len(buttonlist) > 4:
             max_column = 4
         else:
             max_column = len(buttonlist)
-    button_column = st.columns(([1] * max_column))        
-    for i in range(len(buttonlist)):
-        with button_column[i % max_column]:
-            if buttonlist == ss.languages:
-                if st.button(buttonlist[i],use_container_width=True,type = ("primary" if (ss[session_state_variable] == buttonlist[i]) else "secondary")):
-                    ss[session_state_variable] = buttonlist[i]
-                    st.rerun()                
-            else:
-                if st.button(buttonlist[i]["caption"][ss.selected_language],use_container_width=True,type = ("primary" if (ss[session_state_variable] == buttonlist[i]["value"]) else "secondary")):
-                    if buttonlist[i]["value"] is True:
-                        ss[session_state_variable] = (ss[session_state_variable] == False)
-                    else:
-                        ss[session_state_variable] = buttonlist[i]["value"]
-                    st.rerun()
+    with button_container:
+        button_column = st.columns(([1] * max_column))        
+        for i in range(len(buttonlist)):
+            with button_column[i % max_column]:
+                    button_type = "secondary"
+                    button_key = None
+                    if (active_button_color != None) and (ss[session_state_variable] == buttonlist[i]["value"]):
+                        button_key = active_button_color
+                    elif (ss[session_state_variable] == buttonlist[i]["value"]):
+                        button_type = "primary"
+                    if st.button(buttonlist[i]["caption"][ss.selected_language],use_container_width=True,type = button_type, key = button_key):
+                        if buttonlist[i]["value"] is True:
+                            ss[session_state_variable] = (ss[session_state_variable] == False)
+                        else:
+                            ss[session_state_variable] = buttonlist[i]["value"]
+                        st.rerun()   
 
 def filter_stand_alone_df(df, selected_counties):
     selected_counties_list = []
@@ -904,7 +950,7 @@ def draw_map(map_df,sort_by,color_type = "unique coloring"):
     map_title = ss.legend[sort_by]["map title"][ss.selected_language]
 
     map_title = map_title.replace("(AGE_FILTER)",age_filter_text())
-    st.markdown("### " + map_title)
+    st.markdown("### " + map_title.replace("<br>","  \n ###"))
     if color_type == "unique coloring":
         region_map = ss.legend[sort_by]["theme"]
         color_map = region_map
@@ -960,30 +1006,20 @@ def draw_map(map_df,sort_by,color_type = "unique coloring"):
 
 header_column, language_buttons = st.columns([15,2])
 with language_buttons:
-    button_list(ss.languages,"selected_language")
+    button_list(ss.languages_buttons,"selected_language","darkblue")
 with header_column:
     if ss.selected_language == "EN":
         st.title("Hungarian Census of 1869")
     elif ss.selected_language == "HU":
         st.title("1869-as magyarországi népszámlálás")
 
-# Style
-#css = """
-#.st-key-my_blue_container {
-#    background-color: rgba(100, 100, 200, 0.3);
-#}
-#"""
 
-#st.html(f"<style>{css}</style>")
-#with st.container(key="my_blue_container"):
-
-dashboard = st.container(border = True, key="my_blue_container")    
+dashboard = st.container(border = True)    
 with dashboard:
-    button_list(ss.tab_list,"selected_tab")
+    button_list(ss.tab_list,"selected_tab","green")
     tab_name = ss.tab_list[ss.selected_tab]["caption"]["EN"]
     selected_button_name = "tab" + str(ss.selected_tab) + "button"
     selected_button_value = ss[selected_button_name] 
-    st.divider()
     if (tab_name.find("Age and Gender Census") >= 0):
         map_col, det_col = st.columns([10,4],gap = "small")
         with map_col:
@@ -1066,7 +1102,7 @@ with dashboard:
             sidechart_container = st.container(border = True)      
             with sidechart_container:
                 button_list(ss.religion_comparison_buttons["buttons"], "religion_comparison")                
-                draw_sidechart(filtered_df, sort_by, 565, counties_selected)   
+                draw_sidechart(filtered_df, sort_by, 575, counties_selected)   
     elif (tab_name.find("Livestock") >= 0):
         map_col, det_col = st.columns([10,4],gap = "small")
         with map_col:
@@ -1087,7 +1123,7 @@ with dashboard:
             sidechart_container = st.container(border = True)      
             with sidechart_container:
                 button_list(ss.livestock_comparison_buttons["buttons"], "livestock_comparison")                
-                draw_sidechart(filtered_df, sort_by, 565, counties_selected)                                     
+                draw_sidechart(filtered_df, sort_by, 518.5, counties_selected)                                     
     elif (tab_name.find("Population and Area") >= 0):
         map_col, det_col = st.columns([10,4],gap = "small")
         with map_col:
@@ -1101,7 +1137,7 @@ with dashboard:
         with det_col:
             sidechart_container = st.container(border = True)      
             with sidechart_container:
-                draw_sidechart(filtered_df,selected_button_value, 456, counties_selected)
+                draw_sidechart(filtered_df,selected_button_value, 461, counties_selected)
     elif (tab_name.find("Literacy") >= 0):
         map_col, det_col = st.columns([10,4],gap = "small")
         with map_col:
@@ -1116,18 +1152,4 @@ with dashboard:
             sidechart_container = st.container(border = True)      
             with sidechart_container:
                 button_list(ss. partial_literacy_included_buttons["buttons"], "partial_literacy_included")
-                draw_sidechart(filtered_df,("partially " if ss.partial_literacy_included else "")  + selected_button_value, 399, counties_selected)
-
-
-        #if (ss.selected_language == "HU"):
-        #    st.markdown("#### Válassz ki néhány megyét az összehasonlításukhoz [SHIFT + Click]")                            
-        #elif (ss.selected_language == "EN"):
-        #    st.markdown("#### Select some counties to compare [SHIFT + Click]")                    
-
-        #if (counties_selected):
-        #    for county in selected_counties_list:
-        #        st.markdown("### " + county)                        
-        #        st.dataframe(filtered_df[filtered_df["county"] == county])
-        #else:
-        #    st.dataframe(filtered_df)                    
-                        
+                draw_sidechart(filtered_df,("partially " if ss.partial_literacy_included else "")  + selected_button_value, 440, counties_selected)
