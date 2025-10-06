@@ -38,9 +38,35 @@ st.markdown("""
     .st-key-darkblue button {
         background-color: #003366 !important;
         color: white !important;
-    }                         
+    }      
+
+    .st-key-darkblue-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;  /* Push children (the button) to the bottom */
+        height: 200px;              /* Set container height as needed */            
+        border-radius: 8px;
+        padding-top: 30px;
+    }                               
 </style>
-""", unsafe_allow_html=True)   
+""", unsafe_allow_html=True)  
+
+st.markdown("""
+    <style>
+    
+           /* Remove blank space at top and bottom */ 
+           .block-container {
+               padding-top: 0rem;
+               padding-bottom: 0rem;
+            }
+           
+           /* Remove blank space at the center canvas */ 
+           .st-emotion-cache-z5fcl4 {
+               position: relative;
+               top: -15px;
+               }
+    </style>
+    """, unsafe_allow_html=True)
 
 init = False
 if "start" not in ss:
@@ -1004,9 +1030,11 @@ def draw_map(map_df,sort_by,color_type = "unique coloring"):
                       height=400)
     return(fig)
 
-header_column, language_buttons = st.columns([15,2])
+header_column, language_buttons = st.columns([13,2])
 with language_buttons:
-    button_list(ss.languages_buttons,"selected_language","darkblue")
+    darkblue_container = st.container(key = 'darkblue-container' )
+    with darkblue_container:
+        button_list(ss.languages_buttons,"selected_language","darkblue")
 with header_column:
     if ss.selected_language == "EN":
         st.title("Hungarian Census of 1869")
@@ -1152,4 +1180,43 @@ with dashboard:
             sidechart_container = st.container(border = True)      
             with sidechart_container:
                 button_list(ss. partial_literacy_included_buttons["buttons"], "partial_literacy_included")
-                draw_sidechart(filtered_df,("partially " if ss.partial_literacy_included else "")  + selected_button_value, 440, counties_selected)
+                draw_sidechart(filtered_df,("partially " if ss.partial_literacy_included else "")  + selected_button_value, 407, counties_selected)
+
+    if (tab_name.find("Regions and Government") == -1):
+        selection_reminder = {  'HU': '##### Megyék összehasonlításához a térképen való kijelölés közben tartsd lenyomva a SHIFT-et',
+                                'EN': '##### To compare counties, hold down SHIFT while clicking on the map'}
+        st.markdown(selection_reminder[ss.selected_language])
+
+st.markdown("""
+<style>
+.footer {
+    position: fixed;
+    bottom: 10px;
+    right: 15px;
+    text-align: right;
+    font-size: 14px;
+    color: #888;
+    border: 1px solid #3399ff33;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background-color: #f9f9f955;
+    backdrop-filter: blur(6px);
+}
+
+.footer a {
+    color: #3399ff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# --- Footer HTML with hyperlink ---
+st.markdown(
+    '<div class="footer">Made by <a href="https://github.com/LLLaci" target="_blank">LLLaci</a></div>',
+    unsafe_allow_html=True
+)
