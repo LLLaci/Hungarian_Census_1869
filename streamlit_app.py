@@ -1187,36 +1187,36 @@ with dashboard:
                                 'EN': '##### To compare counties, hold down SHIFT while clicking on the map'}
         st.markdown(selection_reminder[ss.selected_language])
 
-st.markdown("""
-<style>
-.footer {
-    position: fixed;
-    bottom: 10px;
-    right: 15px;
-    text-align: right;
-    font-size: 14px;
-    color: #888;
-    border: 1px solid #3399ff33;
-    padding: 6px 10px;
-    border-radius: 8px;
-    background-color: #f9f9f955;
-    backdrop-filter: blur(6px);
-}
+#st.markdown("""
+#<style>
+#.footer {
+#    position: fixed;
+#    bottom: 10px;
+#    right: 15px;
+#    text-align: right;
+#    font-size: 14px;
+#    color: #888;
+#    border: 1px solid #3399ff33;
+#    padding: 6px 10px;
+#    border-radius: 8px;
+#    background-color: #f9f9f955;
+#    backdrop-filter: blur(6px);
+#}
 
-.footer a {
-    color: #3399ff;
-    text-decoration: none;
-    font-weight: 500;
-}
+#.footer a {
+#    color: #3399ff;
+#    text-decoration: none;
+#    font-weight: 500;
+#}
 
-.footer a:hover {
-    text-decoration: underline;
-}
-</style>
-""", unsafe_allow_html=True)
+#.footer a:hover {
+#    text-decoration: underline;
+#}
+#</style>
+#""", unsafe_allow_html=True)
 
 # --- Footer HTML with hyperlink ---
-st.markdown(
-    '<div class="footer">Made by <a href="https://github.com/LLLaci" target="_blank">LLLaci</a></div>',
-    unsafe_allow_html=True
-)
+#st.markdown(
+#    '<div class="footer">Made by <a href="https://github.com/LLLaci" target="_blank">LLLaci</a></div>',
+#    unsafe_allow_html=True
+#)
