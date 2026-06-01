@@ -6,7 +6,9 @@ import openpyxl
 
 ss = st.session_state
 
-st.set_page_config(layout="wide")
+st.set_page_config(page_title='Hungarian Census 1869',
+                   layout='wide',
+                   page_icon = '🗺️')
 
     # Colored buttons
 
