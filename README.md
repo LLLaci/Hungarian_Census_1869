@@ -1,6 +1,6 @@
 # Hungarian Census 1869
 
-This Streamlit app is showing the results of the 1869 Hungarian Census in county level:\
+This Streamlit app displays the results of the 1869 Hungarian Census on an interactive map at the county level.:\
 [https://hungariancensus1869.streamlit.app/](https://hungariancensus1869.streamlit.app/)
 
 data source: [Az 1870. év elején végrehajtott népszámlálás eredményei a hasznos házi állatok kimutatásával együtt (1871)](https://library.hungaricana.hu/en/view/NEDA_1870/?pg=0&layout=s)\
