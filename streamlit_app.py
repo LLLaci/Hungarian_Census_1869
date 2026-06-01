@@ -96,7 +96,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
- --- Footer HTML with hyperlink ---
+# --- Footer HTML with hyperlink ---
 st.markdown(
     '<div class="footer">Made by <a href="https://github.com/LLLaci" target="_blank">LLLaci</a></div>',
     unsafe_allow_html=True
