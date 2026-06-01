@@ -1059,8 +1059,8 @@ def draw_map(map_df,sort_by,color_type = "unique coloring"):
     fig.update_geos(fitbounds="locations", visible=False)                                   
     fig.update_traces(hovertemplate = hover_template)
     fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0},
-                      coloraxis_colorbar_title = ss.legend[sort_by]["text"][ss.selected_language] + ("" if (ss.legend[sort_by]["suffix"][ss.selected_language] == "") else "<br> [" + ss.legend[sort_by]["suffix"][ss.selected_language] + " ]"),
-                      legend_title_text = ss.legend[sort_by]["text"][ss.selected_language] + ("" if (ss.legend[sort_by]["suffix"][ss.selected_language] == "") else "<br> [" + ss.legend[sort_by]["suffix"][ss.selected_language] + " ]"),
+                      coloraxis_colorbar_title = ss.legend[sort_by]["text"][ss.selected_language].replace("(AGE_FILTER)",age_filter_text()) + ("" if (ss.legend[sort_by]["suffix"][ss.selected_language] == "") else "<br> [" + ss.legend[sort_by]["suffix"][ss.selected_language] + " ]"),
+                      legend_title_text = ss.legend[sort_by]["text"][ss.selected_language].replace("(AGE_FILTER)",age_filter_text()) + ("" if (ss.legend[sort_by]["suffix"][ss.selected_language] == "") else "<br> [" + ss.legend[sort_by]["suffix"][ss.selected_language] + " ]"),
                       coloraxis_colorbar_xanchor = "right",
                       legend_xanchor = "right",
                       height=400)
